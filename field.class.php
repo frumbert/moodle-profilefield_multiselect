@@ -14,9 +14,9 @@ class profile_field_multiselect extends profile_field_base {
         $this->profile_field_base($fieldid, $userid);
 
         /// Param 1 for menu type is the options
-		
-        $options = explode("\n", $this->field->param1);	
-	
+        
+        $options = explode("\n", $this->field->param1); 
+    
         $this->options = array();
         if ($this->field->required){
             $this->options[''] = get_string('choose').'...';
@@ -27,14 +27,14 @@ class profile_field_multiselect extends profile_field_base {
 
         /// Set the data key
         if ($this->data !== NULL) {
-			$this->data = str_replace("\r", '', $this->data);
-			$this->datatmp = explode("\n", $this->data);	
-			foreach($this->datatmp as $key => $option1) {
-				$this->datakey[] = (int)array_search($option1, $this->options);
-			}
+            $this->data = str_replace("\r", '', $this->data);
+            $this->datatmp = explode("\n", $this->data);    
+            foreach($this->datatmp as $key => $option1) {
+                $this->datakey[] = (int)array_search($option1, $this->options);
+            }
         }
-		
-		
+        
+        
     }
 
     /**
@@ -44,7 +44,7 @@ class profile_field_multiselect extends profile_field_base {
      */
     function edit_field_add($mform) {
         $mform->addElement('select', $this->inputname, format_string($this->field->name), $this->options);
-		$mform->getElement($this->inputname)->setMultiple(true);
+        $mform->getElement($this->inputname)->setMultiple(true);
     }
 
     /**
@@ -52,12 +52,18 @@ class profile_field_multiselect extends profile_field_base {
      * Overwrites the base class method
      */
     function edit_field_set_default($mform) {
+        $defaults = explode(',' , $this->field->defaultdata);
+        $defaults = array_map('trim', $defaults);
+        $verified = array_intersect($defaults,$this->options);
+        $mform->setDefault($this->inputname, $verified);
+/*
         if (FALSE !==array_search($this->field->defaultdata, $this->options)){
             $defaultkey = (int)array_search($this->field->defaultdata, $this->options);
         } else {
             $defaultkey = '';
-        }		
+        }       
         $mform->setDefault($this->inputname, $defaultkey);
+*/
     }
 
     /**
@@ -68,17 +74,17 @@ class profile_field_multiselect extends profile_field_base {
      * @param   stdClass $datarecord The object that will be used to save the record
      */
     function edit_save_data_preprocess($data, $datarecord) {
-	//print "<pre>";print_r($data);die;
-	$string='';
-		if(is_array($data)){		
-		 foreach($data as $key) {		 
+    //print "<pre>";print_r($data);die;
+    $string='';
+        if(is_array($data)){        
+         foreach($data as $key) {        
             if(isset($this->options[$key]))
-			{
-				$string .= $this->options[$key]."\r\n";
-			}
-        }		
-		return substr($string,0,-2);
-		}		
+            {
+                $string .= $this->options[$key]."\r\n";
+            }
+        }       
+        return substr($string,0,-2);
+        }       
         return isset($this->options[$data]) ? $this->options[$data] : NULL;
     }
 

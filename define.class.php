@@ -8,30 +8,39 @@ class profile_define_multiselect extends profile_define_base {
         $form->setType('param1', PARAM_TEXT);
 
         /// Default data
-        $form->addElement('text', 'defaultdata', get_string('profiledefaultdata', 'admin'), 'size="50"');
+        $form->addElement('textarea', 'defaultdata', get_string('defaultoptions', 'profilefield_multiselect'), array('rows' => 4, 'cols' => 40));
         $form->setType('defaultdata', PARAM_TEXT);
     }
 
     function define_validate_specific($data, $files) {
         $err = array();
 
-        $data->param1 = str_replace("\r", '', $data->param1);
+        $data->param1 = str_replace("\r", '', $data->param1); // stop it windows
+        $data->defaultdata = str_replace("\r", '', $data->defaultdata); // everybody elses just uses \n
+
+        $options = explode("\n", $data->param1);
+        $options = array_map("trim", $options); // ignore surrounding whitespace for better matching
+        $defaults = explode("\n" , $data->defaultdata);
+        $defaults = array_map("trim", $defaults);
+
+        $goodo = count(array_intersect($defaults,$options)) > 0;
 
         /// Check that we have at least 2 options
-        if (($options = explode("\n", $data->param1)) === false) {
+        if (count($options) == 0) {
             $err['param1'] = get_string('profilemenunooptions', 'admin');
         } elseif (count($options) < 2) {
             $err['param1'] = get_string('profilemenutoofewoptions', 'admin');
 
         /// Check the default data exists in the options
-        } elseif (!empty($data->defaultdata) and !in_array($data->defaultdata, $options)) {
-            $err['defaultdata'] = get_string('profilemenudefaultnotinoptions', 'admin');
+        } elseif (!$goodo) {
+            $err['defaultdata'] = get_string('profilemenudefaultnotinoptions', 'profilefield_multiselect');
         }
         return $err;
     }
 
     function define_save_preprocess($data) {
         $data->param1 = str_replace("\r", '', $data->param1);
+        $data->defaultdata = str_replace("\r", '', $data->defaultdata);
 
         return $data;
     }

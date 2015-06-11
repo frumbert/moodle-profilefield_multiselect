@@ -24,3 +24,5 @@
  */
 
 $string['pluginname'] = 'Multi Select';
+$string['defaultoptions'] = 'Default values (one per line)';
+$string['profilemenudefaultnotinoptions'] = 'You must supply one or more default options matching the list above';
